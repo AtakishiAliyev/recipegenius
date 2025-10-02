@@ -1,67 +1,111 @@
-import { Button, Input } from "antd";
+import { Button, Input, Skeleton } from "antd";
 import { AppleOutlined } from "@ant-design/icons";
 import Options from "../components/recipe-generator/Options";
 import { dietaryOptions, preprationOptions } from "../utils/constant";
 import { useState } from "react";
+import toast, { Toaster } from "react-hot-toast";
+import useRecipeGenerator from "../hook/useRecipeGenerator";
+import Details from "../components/recipe-generator/Details";
 
 const Home = () => {
-  const [ingredients, setIngredients] = useState("");
-  const [dietary, setDietary] = useState([]);
-  const [prepration, setPrepration] = useState([]);
+  const [formData, setFormData] = useState({
+    ingredients: "",
+    dietary: [],
+    preparation: [],
+  });
 
-  function handleIngredients(e) {
-    setIngredients(e.target.value);
-  }
+  const { recipe, isLoading, error, handleGenerateRecipe } =
+    useRecipeGenerator();
+
+  const handleFormElement = (name, value) => {
+    console.log(name, value);
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
   function handleSubmit(e) {
     e.preventDefault();
-
-    console.log(ingredients.split(","), dietary, prepration);
+    handleGenerateRecipe(formData);
   }
 
+  if (error) {
+    toast.error("Xəta baş verdi!!!");
+  }
+
+  console.log(formData);
+
   return (
-    <div className="py-12 px-6">
-      <div className="p-8 shadow-md max-w-[600px] mx-auto">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold">AI-Powered Recipe Generator</h1>
-          <p className="mt-4 text-gray-500 text-md">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Corporis,
-            temporibus!
-          </p>
+    <>
+      <Toaster position="top-center" />
+      <div className="py-12 px-6">
+        <div className="p-8 shadow-md max-w-[600px] mx-auto">
+          <div className="text-center">
+            <h1 className="text-4xl font-bold">AI-Powered Recipe Generator</h1>
+            <p className="mt-4 text-gray-500 text-md">
+              Lorem ipsum dolor sit amet consectetur adipisicing elit. Corporis,
+              temporibus!
+            </p>
+          </div>
+
+          <form className="mt-6" onSubmit={handleSubmit}>
+            <div className="flex flex-col gap-4">
+              <p className="font-bold">Ingredients</p>
+              <Input
+                value={formData.ingredients}
+                onChange={(e) =>
+                  handleFormElement("ingredients", e.target.value)
+                }
+                size="large"
+                placeholder="e.g chicken, rice, broccoli"
+                prefix={<AppleOutlined />}
+              />
+            </div>
+
+            <div className="mt-8 flex">
+              <Options
+                title="Dietary Options"
+                name="dietary"
+                options={dietaryOptions}
+                onChange={handleFormElement}
+                value={formData.dietary}
+              />
+              <Options
+                title="Prepration Time"
+                name="preparation"
+                options={preprationOptions}
+                onChange={handleFormElement}
+                value={formData.preparation}
+              />
+            </div>
+
+            <div className="mt-8 flex items-center justify-center">
+              <Button
+                type="primary"
+                htmlType="submit"
+                size="large"
+                disabled={isLoading}
+              >
+                Create Recipe
+              </Button>
+            </div>
+          </form>
         </div>
 
-        <form className="mt-6" onSubmit={handleSubmit}>
-          <div className="flex flex-col gap-4">
-            <p className="font-bold">Ingredients</p>
-            <Input
-              onChange={handleIngredients}
-              size="large"
-              placeholder="e.g chicken, rice, broccoli"
-              prefix={<AppleOutlined />}
+        {isLoading && (
+          <div className="flex items-center justify-center mt-12">
+            <Skeleton.Node
+              active={isLoading}
+              style={{ width: 600, height: 600 }}
             />
           </div>
+        )}
 
-          <div className="mt-8 flex">
-            <Options
-              title="Dietary Options"
-              options={dietaryOptions}
-              setData={setDietary}
-            />
-            <Options
-              title="Prepration Time"
-              options={preprationOptions}
-              setData={setPrepration}
-            />
-          </div>
-
-          <div className="mt-8 flex items-center justify-center">
-            <Button type="primary" htmlType="submit" size="large">
-              Create Recipe
-            </Button>
-          </div>
-        </form>
+        {recipe && !isLoading && <Details recipe={recipe} />}
       </div>
-    </div>
+    </>
   );
 };
 

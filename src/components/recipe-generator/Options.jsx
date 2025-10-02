@@ -1,15 +1,17 @@
 import { Checkbox } from "antd";
 
-const Options = ({ title, options, setData }) => {
-  const handleChange = (checkedValues) => {
-    setData(checkedValues);
-  };
+const Options = ({ title, name, options, onChange, value = [] }) => {
+  console.log(value);
 
   return (
     <div className="flex flex-col flex-1 gap-4">
       <h3 className="font-bold">{title}</h3>
       <div className="flex flex-col gap-4">
-        <Checkbox.Group options={options} onChange={handleChange} />
+        <Checkbox.Group
+          options={options}
+          value={value}
+          onChange={() => onChange(name, value)}
+        />
       </div>
     </div>
   );
