@@ -33,8 +33,6 @@ const Home = () => {
     toast.error("Xəta baş verdi!!!");
   }
 
-  console.log(formData);
-
   return (
     <>
       <Toaster position="top-center" />
